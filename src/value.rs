@@ -41,7 +41,7 @@ use crate::{
     module::Module,
     r_bignum::RBignum,
     r_float::RFloat,
-    r_string::RString,
+    r_string::{RString, FString},
     symbol::Symbol,
     try_convert::{ArgList, TryConvert, TryConvertOwned},
 };
@@ -2063,6 +2063,11 @@ impl StaticSymbol {
     /// ```
     pub fn name(self) -> Result<&'static str, Error> {
         Id::from(self).name()
+    }
+
+    /// Return the [`FString`] associated with the symbol.
+    pub fn as_f_string(self) -> FString {
+        FString::from_id(self.into())
     }
 }
 

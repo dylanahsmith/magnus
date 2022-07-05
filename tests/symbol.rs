@@ -46,3 +46,11 @@ fn it_makes_a_symbol() {
     assert!(!y.is_static());
     StaticSymbol::from_value(eval::<Value>(":yyy").unwrap()).unwrap();
 }
+
+#[test]
+fn it_converts_from_a_symbol() {
+    let _cleanup = unsafe { magnus::embed::init() };
+
+    let sym = StaticSymbol::new("example");
+    assert_eq!(sym.as_f_string().as_str().unwrap(), "example");
+}

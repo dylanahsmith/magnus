@@ -15,8 +15,8 @@ use std::{
 use crate::ruby_sys::{
     self, rb_enc_str_coderange, rb_enc_str_new, rb_str_buf_append, rb_str_buf_new, rb_str_cat,
     rb_str_conv_enc, rb_str_new, rb_str_new_frozen, rb_str_new_shared, rb_str_strlen,
-    rb_str_to_str, rb_utf8_str_new, rb_utf8_str_new_static, ruby_coderange_type,
-    ruby_rstring_flags, ruby_value_type, VALUE,
+    rb_str_to_str, rb_utf8_str_new, rb_utf8_str_new_static, rb_id2str,
+    ruby_coderange_type, ruby_rstring_flags, ruby_value_type, VALUE,
 };
 
 #[cfg(ruby_gte_3_0)]
@@ -35,7 +35,7 @@ use crate::{
     exception,
     object::Object,
     try_convert::TryConvert,
-    value::{private, NonZeroValue, ReprValue, Value},
+    value::{private, NonZeroValue, ReprValue, Value, Id},
 };
 
 /// A Value pointer to a RString struct, Ruby's internal representation of
@@ -1144,6 +1144,11 @@ impl TryConvert for RString {
 pub struct FString(RString);
 
 impl FString {
+    #[inline]
+    pub(crate) fn from_id(id: Id) -> Self {
+        unsafe { FString(RString::from_rb_value_unchecked(rb_id2str(id.as_rb_id()))) }
+    }
+
     /// Returns the interned string as a [`RString`].
     pub fn as_r_string(self) -> RString {
         self.0
@@ -1253,6 +1258,12 @@ impl fmt::Debug for FString {
 impl From<FString> for Value {
     fn from(val: FString) -> Self {
         *val.as_r_string()
+    }
+}
+
+impl From<Id> for FString {
+    fn from(val: Id) -> Self {
+        FString::from_id(id)
     }
 }
 
